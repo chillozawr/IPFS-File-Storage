@@ -1,3 +1,5 @@
+import { IPFSHTTPClient } from 'ipfs-http-client/dist/src/types';
+
 export interface Connection {
   status: string;
   address: string;
@@ -10,5 +12,5 @@ export interface txParams {
 }
 
 export interface nodeProps {
-  node: any;
+  node: IPFSHTTPClient | undefined;
 }

@@ -1,28 +1,53 @@
-import { useEffect, useState } from "react";
-import * as IPFS from "ipfs-core";
-import "./App.css";
-import ConnectMetamask from "./components/connectButton/ConnectMetamask";
-import FileInput from "./components/fileInput/FileInput";
-import { useActions } from "./hooks/actions";
-import { nodeProps } from "./utils/types";
+import { useEffect, useState } from 'react';
+import './App.css';
+import { create, IPFSHTTPClient } from 'ipfs-http-client';
+import { Buffer as BufferPolyfill } from 'buffer';
+import { Routes, Route } from 'react-router-dom';
+import Login from './pages/Login';
+import { useAppSelector } from './hooks/redux';
+import Storage from './pages/Storage';
+import { useActions } from './hooks/actions';
 
 function App() {
-  const [IPFSNode, setIPFSNode] = useState<any>(null);
+  const [IPFSNode, setIPFSNode] = useState<IPFSHTTPClient | undefined>();
+  const { address } = useAppSelector((state) => state.address);
+  const { changeAccount } = useActions();
+  let ipfs: IPFSHTTPClient | undefined;
   // const { setNodeIPFS } = useActions();
-  useEffect(() => {
-    const startNode = async () => {
-      const node = await IPFS.create();
-      setIPFSNode(node);
-      console.log("IPFS NODE STARTED...");
-    };
+  const auth =
+    'Basic ' +
+    BufferPolyfill.from(
+      import.meta.env.VITE_INFURA_PROJECT_ID +
+        ':' +
+        import.meta.env.VITE_INFURA_API_SECRET_KEY
+    ).toString('base64');
 
-    startNode().catch(console.error);
+  useEffect(() => {
+    try {
+      ipfs = create({
+        host: 'ipfs.infura.io',
+        port: 5001,
+        protocol: 'https',
+        headers: {
+          authorization: auth,
+        },
+      });
+    } catch (e: any) {
+      console.error('IPFS Error', e);
+      ipfs = undefined;
+    }
+    setIPFSNode(ipfs);
+    if (sessionStorage.getItem('account')) {
+      changeAccount(sessionStorage!.getItem('account')!);
+    }
   }, []);
 
   return (
     <div className="App">
-      <ConnectMetamask />
-      <FileInput node={IPFSNode} />
+      <Routes>
+        <Route path={'/'} element={<Login />} />
+        <Route path={'/yourstorage'} element={<Storage />} />
+      </Routes>
     </div>
   );
 }

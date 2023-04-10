@@ -1,27 +1,21 @@
-import { createSlice } from "@reduxjs/toolkit";
-import type { PayloadAction } from "@reduxjs/toolkit";
-import * as IPFS from "ipfs-core";
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 
 export interface AddressState {
   address: string;
-  // IPFSNode: any;
 }
 
 const initialState: AddressState = {
-  address: "",
-  // IPFSNode: null,
+  address: '',
 };
 
 const addressSlice = createSlice({
-  name: "address",
+  name: 'address',
   initialState,
   reducers: {
     changeAccount: (state, action: PayloadAction<string>) => {
       state.address = action.payload;
     },
-    // setNodeIPFS: (state, action: PayloadAction<any>) => {
-    //   state.IPFSNode = action.payload;
-    // },
   },
 });
 
